@@ -1,0 +1,45 @@
+# Airflow logs
+logs/
+airflow-logs/
+
+# Airflow database
+airflow.db
+
+# Airflow config
+airflow.cfg
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Poetry
+.poetry/
+dist/
+*.egg-info/
+
+# Data and output files
+data/
+*.csv
+*.parquet
+*.json
+
+# Environment variables
+.env
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

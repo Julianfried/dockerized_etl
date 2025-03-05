@@ -1,0 +1,87 @@
+[MASTER]
+# A comma-separated list of file or directory patterns to skip
+ignore=CVS,venv,.git,__pycache__,docs,node_modules,.venv,scripts,logs
+
+# Add files or directories matching the regular expressions patterns to the ignore list
+ignore-patterns=
+
+# Python code to execute before the script. This can be used to base imports or other tasks.
+init-hook='import sys; sys.path.append(".")'
+
+# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available
+jobs=0
+
+# List of plugins (as comma separated values of python module names) to load
+load-plugins=
+
+# Pickle collected data for later comparisons.
+persistent=yes
+
+# When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints
+suggestion-mode=yes
+
+# Allow loading of arbitrary C extensions
+unsafe-load-any-extension=no
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker
+disable=raw-checker-failed,
+        bad-inline-option,
+        locally-disabled,
+        file-ignored,
+        suppressed-message,
+        useless-suppression,
+        deprecated-pragma,
+        use-symbolic-message-instead,
+        missing-module-docstring,
+        missing-class-docstring,
+        missing-function-docstring,
+        no-member,
+        import-error,
+        attribute-defined-outside-init,
+        invalid-name,
+        too-many-arguments,
+        too-many-locals,
+        too-many-branches,
+        too-many-statements,
+        too-many-instance-attributes,
+        line-too-long,  # Already handled by flake8
+        too-few-public-methods,
+        fixme,  # Allow TODOs
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation
+indent-string='    '
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=8
+
+# Maximum number of locals for function / method body
+max-locals=15
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+# Maximum number of branch for function / method body
+max-branches=12
+
+# Maximum number of statements in function / method body
+max-statements=50
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=10
+
+# Ignore imports when computing similarities
+ignore-imports=yes
+
+[VARIABLES]
+# A regular expression matching names of dummy variables
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_
