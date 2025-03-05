@@ -18,7 +18,7 @@ help:
 install:
 	@poetry install
 
-lint: 
+lint:
 	@chmod +x scripts/lint.sh
 	@./scripts/lint.sh
 

@@ -233,5 +233,3 @@ This project includes several linting tools to maintain code quality:
 - [Great Expectations Documentation](https://docs.greatexpectations.io/)
 - [Pandas Documentation](https://pandas.pydata.org/docs/)
 - [Poetry Documentation](https://python-poetry.org/docs/)
-
-
