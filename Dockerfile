@@ -32,6 +32,8 @@ WORKDIR ${AIRFLOW_HOME}
 COPY pyproject.toml poetry.lock* ./
 
 # Install dependencies in a specific order to avoid compatibility issues
+RUN pip install --no-cache-dir python-dotenv==1.0.1 
+
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir setuptools wheel && \
     # Install NumPy first with a pinned version
@@ -42,9 +44,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" \
         apache-airflow-providers-postgres==5.7.0 \
         flask-session==0.5.0 && \
-    # Finally install great-expectations
     pip install --no-cache-dir great-expectations==0.17.16
 
+    
+   
 # Optional: Install dev dependencies for linting if ARG DEV_MODE=true
 ARG DEV_MODE=false
 RUN if [ "$DEV_MODE" = "true" ]; then \
@@ -68,3 +71,6 @@ RUN chown -R airflow: ${AIRFLOW_HOME}
 
 USER airflow
 ENTRYPOINT ["/entrypoint.sh"]
+
+# Initialize the Airflow database
+RUN airflow db init

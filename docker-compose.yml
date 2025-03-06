@@ -19,7 +19,7 @@ services:
 
   pgadmin:
       image: dpage/pgadmin4
-      container_name: pgadmin  # Adding container name for easier reference
+      container_name: pgadmin
       environment:
         - PGADMIN_DEFAULT_EMAIL=admin@example.com
         - PGADMIN_DEFAULT_PASSWORD=admin
@@ -43,18 +43,25 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false  # Changed to false to automatically enable DAGs
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false  
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
       - AIRFLOW_HOME=/opt/airflow
+      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
+    env_file:
+      - .env
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./data:/opt/airflow/data
+      - ./.env:/opt/airflow/.env
     ports:
       - "8080:8080"
-    command: webserver
+      
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "pip install python-dotenv==1.0.1 && airflow webserver"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health || exit 0"]
       interval: 30s
@@ -72,15 +79,21 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false  # Changed to false to automatically enable DAGs
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW_HOME=/opt/airflow
+      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
+    env_file:
+      - .env
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./data:/opt/airflow/data
-    command: scheduler
+      - ./.env:/opt/airflow/.env
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "pip install python-dotenv==1.0.1 && airflow scheduler"
     healthcheck:
       test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $(hostname) || exit 0"]
       interval: 30s
@@ -98,21 +111,27 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false  # Changed to false to automatically enable DAGs
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW_HOME=/opt/airflow
+      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
       - _AIRFLOW_DB_UPGRADE=true
       - _AIRFLOW_WWW_USER_CREATE=true
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
+    env_file:
+      - .env
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
-    command: version
+      - ./data:/opt/airflow/data
+      - ./.env:/opt/airflow/.env
+    entrypoint: ["/bin/bash", "-c"]
+    command: >
+      "pip install python-dotenv==1.0.1 && airflow version"
     restart: on-failure
 
-  # New service that triggers the health check DAG after all services are running
   airflow-trigger-healthcheck:
     build: .
     depends_on:
@@ -123,15 +142,20 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
       - AIRFLOW_HOME=/opt/airflow
+      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./.env:/opt/airflow/.env
+    env_file:
+      - .env
     entrypoint: ["/bin/bash", "-c"]
     command: >
-      "sleep 15 && airflow dags unpause health_check_dag && airflow dags trigger health_check_dag"
+      "pip install python-dotenv==1.0.1 && sleep 15 && airflow dags unpause health_check_dag && airflow dags trigger health_check_dag"
     restart: on-failure
 
 volumes:
   postgres-db-volume:
-  pgadmin-data: 
+  pgadmin-data:

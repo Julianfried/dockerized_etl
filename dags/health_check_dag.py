@@ -7,6 +7,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.utils.trigger_rule import TriggerRule
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 import os
@@ -180,14 +181,16 @@ system_check = BashOperator(
 checks_complete = BashOperator(
     task_id="checks_complete",
     bash_command="echo 'All health checks have completed successfully. Triggering ETL pipeline...'",
-    dag=dag
+    dag=dag,
+    trigger_rule=TriggerRule.ALL_SUCCESS,
 )
 
 # Task to trigger the ETL pipeline after all checks pass
 trigger_etl_pipeline = TriggerDagRunOperator(
     task_id="trigger_etl_pipeline",
-    trigger_dag_id="pandas_etl_pipeline",  # The ID of your ETL DAG
+    trigger_dag_id="flight_data_etl_pipeline", 
     dag=dag,
+    trigger_rule=TriggerRule.ALL_SUCCESS,
 )
 
 # Define the task dependencies - all checks must succeed before triggering the ETL pipeline
