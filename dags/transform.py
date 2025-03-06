@@ -6,7 +6,7 @@ Este módulo recibe un DataFrame, realiza transformaciones y devuelve los datos 
 import pandas as pd
 
 
-def transform_data(df: pd.DataFrame) -> pd.DataFrame:
+def transform_data():
     """
     Transforma los datos agregando una columna 'Edad +10'.
 
@@ -17,5 +17,4 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame transformado.
     """
 
-    print("✅ Datos transformados con éxito.")
-    return df
+    return print("✅ Datos transformados con éxito.")

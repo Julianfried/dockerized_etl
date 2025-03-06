@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
 
 # Añadir el directorio actual al sys.path
 dag_folder = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +25,7 @@ from transform import transform_data
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
-    "start_date": datetime(2024, 3, 1),
+    "start_date": days_ago(0),
     "retries": 1,
     "retry_delay": timedelta(minutes=5),
     "email": ["alertas@tudominio.com"],
@@ -36,7 +37,6 @@ dag = DAG(
     "pandas_etl_pipeline",
     default_args=default_args,
     description="Pipeline ETL con Pandas, Data Quality y alertas por email",
-    schedule_interval=timedelta(days=1),
 )
 
 extract_task = PythonOperator(
@@ -47,19 +47,19 @@ extract_task = PythonOperator(
 
 transform_task = PythonOperator(
     task_id="transform_data",
-    python_callable=lambda: transform_data(extract_data()),
+    python_callable=lambda: transform_data(),
     dag=dag,
 )
 
 data_quality_check_task = PythonOperator(
     task_id="data_quality_check",
-    python_callable=lambda: data_quality_check(transform_data(extract_data())),
+    python_callable=lambda: data_quality_check(),
     dag=dag,
 )
 
 load_task = PythonOperator(
     task_id="load_data",
-    python_callable=lambda: load_data(transform_data(extract_data())),
+    python_callable=lambda: load_data(),
     dag=dag,
 )
 

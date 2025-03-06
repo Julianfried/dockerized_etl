@@ -15,6 +15,7 @@ apache-airflow = "2.7.3"
 apache-airflow-providers-postgres = "^5.7.0"
 sqlalchemy = ">=1.4.28,<2.0"
 flask-session = "^0.5.0"
+python-dotenv = "1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

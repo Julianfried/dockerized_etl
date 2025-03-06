@@ -14,5 +14,5 @@ def extract_data() -> pd.DataFrame:
         pd.DataFrame: DataFrame con los datos extraídos.
     """
 
-    print("✅ Datos extraídos con éxito.")
-    return df
+    
+    return print("✅ Datos extraídos con éxito.")

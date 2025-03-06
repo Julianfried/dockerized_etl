@@ -6,7 +6,7 @@ Este módulo simula la carga de datos procesados en un sistema destino.
 import pandas as pd
 
 
-def load_data(df: pd.DataFrame):
+def load_data():
     """
     Simula la carga de datos mostrando el DataFrame en consola.
 
@@ -14,5 +14,4 @@ def load_data(df: pd.DataFrame):
         df (pd.DataFrame): DataFrame transformado.
     """
     print("✅ Cargando datos al destino...")
-    print(df)
-    print("✅ Carga completada.")
+    return print("✅ Carga completada.")

@@ -1,9 +1,10 @@
 #!/bin/bash
-
+set -e
 # Upgrade the Airflow database
 if [ "$_AIRFLOW_DB_UPGRADE" = 'true' ]; then
-  airflow db upgrade
+  airflow db init`
   airflow db check
+
 fi
 
 # Create the admin user
