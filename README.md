@@ -61,6 +61,7 @@ dockerized_etl/
 ├── data/                   # Data directory for pipeline artifacts
 ├── init-scripts/           # Database initialization scripts
 │   └── 01-init-db.sql      # Creates testfligoo database and testdata table
+├── notebooks/              # Jupyter Notebooks directory
 ├── logs/                   # Airflow logs directory
 ├── plugins/                # Airflow plugins directory
 ├── scripts/                # Utility scripts
@@ -88,7 +89,11 @@ cd dockerized_etl
 mkdir -p dags logs plugins data
 ```
 
-### 3. Build and start the Services
+### 3. Enviroment Variables
+
+Based on the .env.example file, create a .env in the root folder adding you AVIATION_STACK_API_KEY
+
+### 4. Build and start the Services
 
 ```
 docker build .
@@ -103,7 +108,7 @@ This will:
 - Start Airflow webserver and scheduler
 - Initialize Airflow with an admin user
 
-### 4. Access the Airflow Web UI
+### 5. Access the Airflow Web UI
 
 Open your browser and navigate to:
 
@@ -115,7 +120,7 @@ Login with the default credentials:
 - Username: `admin`
 - Password: `admin`
 
-### 5. Activate and Run the DAG
+### 6. Activate and Run the DAG
 
 In the Airflow UI:
 1. Navigate to DAGs
@@ -142,17 +147,28 @@ The included sample DAG (`etl.py`) demonstrates a complete ETL (Extract, Transfo
 
 ## Connecting to the Database
 
-The PostgreSQL database is exposed on port 5432. You can connect to it using:
-
+The PostgreSQL database is exposed on port 5432 and the server is already loaded in pgadmin4. You can login:
 ```
 http://localhost:5050/
 
+Database: testfligoo
+Username: airflow
+MasterPassword: airflow
+Password: airflow
+```
+
+Using you prefered RDBMS, you can connect manually to it using:
+
+```
 Host: localhost
 Port: 5432
 Database: testfligoo
 Username: airflow
 Password: airflow
 ```
+## Jupyter Notebook
+
+You can run the flight_data_analysis.ipynb notebook for data exploring.
 
 ## Customizing the Pipeline
 

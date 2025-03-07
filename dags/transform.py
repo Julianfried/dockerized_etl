@@ -7,7 +7,6 @@ import pandas as pd
 import logging
 from typing import Dict, Any, Optional
 
-# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,6 @@ def replace_slashes_with_hyphens(value: Any) -> str:
     if pd.isna(value) or value == '':
         return ''
     
-    # Convert to string and replace slashes with hyphens
     return str(value).replace('/', ' - ')
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -64,29 +62,23 @@ def transform_data(df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         pd.DataFrame: Transformed DataFrame.
     """
     if df is None:
-        # For testing from other modules
         from extract import extract_data
         df = extract_data()
     
     logger.info("Starting flight data transformation...")
     
-    # Make a copy to avoid modifying the original
     transformed_df = df.copy()
     
-    # Rename columns for better database compatibility
     transformed_df = rename_columns(transformed_df)
     
-    # Replace slashes with hyphens in timezone and terminal fields
     transformed_df['departure_timezone'] = transformed_df['departure_timezone'].apply(replace_slashes_with_hyphens)
     transformed_df['arrival_timezone'] = transformed_df['arrival_timezone'].apply(replace_slashes_with_hyphens)
     transformed_df['arrival_terminal'] = transformed_df['arrival_terminal'].apply(replace_slashes_with_hyphens)
     
-    # Ensure all string columns are actually strings
     for col in transformed_df.columns:
         if transformed_df[col].dtype != 'datetime64[ns]':
             transformed_df[col] = transformed_df[col].astype(str)
     
-    # Handle empty strings and NaN values
     transformed_df = transformed_df.fillna('')
     
     row_count = len(transformed_df)

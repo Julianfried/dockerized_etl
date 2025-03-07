@@ -100,7 +100,7 @@ def data_quality_check(df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         validation_result = ge_utils.validate_dataframe(
             df=df,
             expectations=expectations,
-            raise_on_failure=False  # Log errors but don't stop the pipeline
+            raise_on_failure=False
         )
         
         if validation_result:
@@ -108,7 +108,6 @@ def data_quality_check(df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
         else:
             logger.warning("⚠️ Some data quality checks failed, but pipeline will continue.")
         
-        # Return the validated DataFrame
         return df
     
     except Exception as e:

@@ -18,7 +18,6 @@ from airflow.models import Connection
 from airflow.utils.session import provide_session
 from sqlalchemy.orm import Session
 
-# Add current directory to Python path
 dag_folder = os.path.dirname(os.path.abspath(__file__))
 if dag_folder not in sys.path:
     sys.path.append(dag_folder)
@@ -36,7 +35,7 @@ dag = DAG(
     "health_check_dag",
     default_args=default_args,
     description="Check system health and trigger ETL pipeline on successful startup",
-    schedule_interval=None,  # Changed from @once to None - will be triggered externally
+    schedule_interval=None, 
     catchup=False,
     tags=["health", "system", "startup"],
 )
@@ -44,7 +43,6 @@ dag = DAG(
 def check_postgres_connection():
     """Check if PostgreSQL is accessible and the required database exists."""
     try:
-        # Connection parameters for testfligoo database
         conn = psycopg2.connect(
             host="postgres",
             database="testfligoo",
@@ -52,14 +50,12 @@ def check_postgres_connection():
             password="airflow"
         )
         
-        # Check if testdata table exists
         cursor = conn.cursor()
         cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'testdata')")
         table_exists = cursor.fetchone()[0]
         
         if not table_exists:
             print("Table 'testdata' does not exist in database 'testfligoo', creating it...")
-            # Create the testdata table
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS testdata (
                 id SERIAL PRIMARY KEY,
@@ -69,7 +65,6 @@ def check_postgres_connection():
             )
             """)
             
-            # Insert sample data
             cursor.execute("""
             INSERT INTO testdata (nombre, edad, ciudad) VALUES
                 ('Ana', 25, 'Madrid'),
@@ -82,7 +77,6 @@ def check_postgres_connection():
             conn.commit()
             print("Table created and sample data inserted.")
         
-        # Get row count to ensure table has data
         cursor.execute("SELECT COUNT(*) FROM testdata")
         row_count = cursor.fetchone()[0]
         
@@ -98,7 +92,6 @@ def check_postgres_connection():
 def check_airflow_connections(session: Session = None):
     """Check if essential Airflow connections are configured."""
     try:
-        # Check if postgres connection exists
         conn_id = "postgres_default"
         existing_conn = session.query(Connection).filter(Connection.conn_id == conn_id).first()
         
@@ -124,7 +117,6 @@ def check_airflow_connections(session: Session = None):
     except Exception as e:
         print(f"Airflow connections check warning: {str(e)}")
         print("Continuing without connection verification...")
-        # Return True to allow pipeline to continue even with connection issues
         return True
 
 def check_filesystem_access():
@@ -140,7 +132,6 @@ def check_filesystem_access():
         if not os.path.exists(directory):
             raise Exception(f"Required directory {directory} does not exist")
         
-        # Check if directory is writable
         test_file = os.path.join(directory, ".test_write")
         try:
             with open(test_file, "w") as f:
@@ -152,7 +143,6 @@ def check_filesystem_access():
     print("Filesystem access check passed.")
     return True
 
-# Define tasks
 postgres_check = PythonOperator(
     task_id="check_postgres_connection",
     python_callable=check_postgres_connection,
@@ -177,7 +167,6 @@ system_check = BashOperator(
     dag=dag,
 )
 
-# Add a confirmation task that marks all checks as complete
 checks_complete = BashOperator(
     task_id="checks_complete",
     bash_command="echo 'All health checks have completed successfully. Triggering ETL pipeline...'",
@@ -185,7 +174,6 @@ checks_complete = BashOperator(
     trigger_rule=TriggerRule.ALL_SUCCESS,
 )
 
-# Task to trigger the ETL pipeline after all checks pass
 trigger_etl_pipeline = TriggerDagRunOperator(
     task_id="trigger_etl_pipeline",
     trigger_dag_id="flight_data_etl_pipeline", 
@@ -193,5 +181,4 @@ trigger_etl_pipeline = TriggerDagRunOperator(
     trigger_rule=TriggerRule.ALL_SUCCESS,
 )
 
-# Define the task dependencies - all checks must succeed before triggering the ETL pipeline
 [postgres_check, airflow_connections_check, filesystem_check, system_check] >> checks_complete >> trigger_etl_pipeline

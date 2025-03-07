@@ -20,14 +20,13 @@ def create_table_if_not_exists():
     """
     Creates the testfligoo table in the PostgreSQL database if it doesn't exist.
     """
-    # Use environment variables for connection parameters
     load_dotenv()
     
     conn_params = {
-        'host': os.getenv('DB_HOST', 'postgres'),
-        'database': os.getenv('DB_NAME', 'testfligoo'),
-        'user': os.getenv('DB_USER', 'airflow'),
-        'password': os.getenv('DB_PASSWORD', 'airflow')
+        'host': os.getenv('DB_HOST'),
+        'database': os.getenv('DB_NAME'),
+        'user': os.getenv('DB_USER'),
+        'password': os.getenv('DB_PASSWORD')
     }
     
     create_table_query = """
@@ -47,11 +46,9 @@ def create_table_if_not_exists():
     """
     
     try:
-        # Connect to PostgreSQL
         conn = psycopg2.connect(**conn_params)
         cursor = conn.cursor()
         
-        # Create table
         cursor.execute(create_table_query)
         conn.commit()
         
@@ -76,40 +73,31 @@ def load_data(df: Optional[pd.DataFrame] = None) -> bool:
         bool: True if data was loaded successfully.
     """
     if df is None:
-        # For testing from other modules
         from data_quality import data_quality_check
         from transform import transform_data
         df = data_quality_check(transform_data())
     
     logger.info("Starting data load to PostgreSQL...")
     
-    # Retry parameters
     max_retries = 3
     retry_delay = 5  # seconds
     
-    # Ensure the table exists
     create_table_if_not_exists()
     
-    # Load environment variables
     load_dotenv()
     
-    # Build connection string from environment variables
-    db_host = os.getenv('DB_HOST', 'postgres')
-    db_name = os.getenv('DB_NAME', 'testfligoo')
-    db_user = os.getenv('DB_USER', 'airflow')
-    db_password = os.getenv('DB_PASSWORD', 'airflow')
-    db_port = os.getenv('DB_PORT', '5432')
+    db_host = os.getenv('DB_HOST')
+    db_name = os.getenv('DB_NAME')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_port = os.getenv('DB_PORT')
     
-    # Database connection string
     db_connection_string = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     
-    # Retry logic for database connection
     for attempt in range(max_retries):
         try:
-            # Create SQLAlchemy engine
             engine = create_engine(db_connection_string)
             
-            # Load data to database
             df.to_sql(
                 'testfligoo', 
                 engine, 
