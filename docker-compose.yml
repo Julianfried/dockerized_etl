@@ -39,15 +39,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false  
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
-      - AIRFLOW_HOME=/opt/airflow
-      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
     env_file:
       - .env
     volumes:
@@ -75,14 +66,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - AIRFLOW_HOME=/opt/airflow
-      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
     env_file:
       - .env
     volumes:
@@ -107,18 +90,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
-      - AIRFLOW__CORE__LOAD_EXAMPLES=false
-      - AIRFLOW_HOME=/opt/airflow
-      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
-      - _AIRFLOW_DB_UPGRADE=true
-      - _AIRFLOW_WWW_USER_CREATE=true
-      - _AIRFLOW_WWW_USER_USERNAME=admin
-      - _AIRFLOW_WWW_USER_PASSWORD=admin
     env_file:
       - .env
     volumes:
@@ -137,12 +108,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY='_awsOQoMRT0CDl-k0rEa9XPRnrtq_L13iZ-0skryIkg='
-      - AIRFLOW_HOME=/opt/airflow
-      - PYTHONPATH=/opt/airflow:/opt/airflow/dags:/opt/airflow/plugins
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -153,7 +118,7 @@ services:
       - .env
     entrypoint: ["/bin/bash", "-c"]
     command: >
-      "pip install python-dotenv==1.0.1 && sleep 15 && airflow dags unpause health_check_dag && airflow dags trigger health_check_dag"
+      "airflow db init && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin && pip install python-dotenv==1.0.1 && sleep 15 && airflow dags unpause health_check_dag && airflow dags trigger health_check_dag"
     restart: on-failure
 
 volumes:

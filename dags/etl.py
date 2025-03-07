@@ -81,9 +81,9 @@ default_args = {
     "start_date": days_ago(0),
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
-    "email": ["alertas@tudominio.com"],
-    "email_on_failure": True,
-    "email_on_retry": False,
+    #"email": ["alertas@tudominio.com"],
+    #"email_on_failure": True,
+    #"email_on_retry": False,
 }
 
 # Define the DAG
@@ -91,7 +91,7 @@ dag = DAG(
     "flight_data_etl_pipeline",
     default_args=default_args,
     description="ETL Pipeline for Aviation Stack Flight Data with Data Quality checks",
-    schedule_interval="@daily",  # Run daily
+    schedule_interval="@daily",
     catchup=False,
     tags=["flight_data", "aviationstack", "etl"],
 )

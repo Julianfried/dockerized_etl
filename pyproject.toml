@@ -4,11 +4,12 @@ version = "0.1.0"
 description = "Dockerized data pipeline with Airflow, Postgres, Pandas, and Great Expectations"
 authors = ["Julian Ignacio Fried julianignaciofried@gmail.com"]
 readme = "README.md"
-package-mode = false
+
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-pandas = "^1.5.3"
+numpy = "1.23.5"
+pandas = "1.5.3"
 great-expectations = "^0.17.16"
 psycopg2-binary = "^2.9.9"
 apache-airflow = "2.7.3"
@@ -16,6 +17,7 @@ apache-airflow-providers-postgres = "^5.7.0"
 sqlalchemy = ">=1.4.28,<2.0"
 flask-session = "^0.5.0"
 python-dotenv = "1.0.1"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

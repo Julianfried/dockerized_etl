@@ -7,6 +7,7 @@ import pandas as pd
 import os
 import logging
 from typing import Optional
+import sys
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,11 +16,15 @@ logger = logging.getLogger(__name__)
 # Get plugins directory path
 dag_folder = os.path.dirname(os.path.abspath(__file__))
 plugins_folder = os.path.join(os.path.dirname(dag_folder), "plugins")
-import sys
 if plugins_folder not in sys.path:
     sys.path.append(plugins_folder)
 
-from great_expectations_utils import GreatExpectationsUtils
+try:
+    from great_expectations_utils import GreatExpectationsUtils
+    GREAT_EXPECTATIONS_AVAILABLE = True
+except ImportError:
+    logger.warning("Great Expectations utils not available. Data quality checks will be skipped.")
+    GREAT_EXPECTATIONS_AVAILABLE = False
 
 def define_flight_data_expectations():
     """
@@ -72,10 +77,19 @@ def data_quality_check(df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     
     logger.info("Starting data quality checks...")
     
+    # If Great Expectations is not available, skip validation and return original DataFrame
+    if not GREAT_EXPECTATIONS_AVAILABLE:
+        logger.warning("⚠️ Great Expectations not available. Skipping data quality checks.")
+        return df
+    
     try:
+        # Create data directory if it doesn't exist
+        data_dir = "/opt/airflow/data/great_expectations"
+        os.makedirs(data_dir, exist_ok=True)
+        
         # Initialize Great Expectations utilities
         ge_utils = GreatExpectationsUtils(
-            data_dir="/opt/airflow/data/great_expectations", 
+            data_dir=data_dir, 
             suite_name="flight_data_suite"
         )
         

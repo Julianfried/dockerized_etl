@@ -29,22 +29,11 @@ RUN useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow
 WORKDIR ${AIRFLOW_HOME}
 
 # Copy poetry configuration files
-COPY pyproject.toml poetry.lock* ./
-
-# Install dependencies in a specific order to avoid compatibility issues
-RUN pip install --no-cache-dir python-dotenv==1.0.1 
-
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir setuptools wheel && \
-    # Install NumPy first with a pinned version
-    pip install --no-cache-dir numpy==1.24.3 && \
-    # Then install pandas with a compatible version
-    pip install --no-cache-dir pandas==1.5.3 && \
-    # Then install core airflow
-    pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" \
-        apache-airflow-providers-postgres==5.7.0 \
-        flask-session==0.5.0 && \
-    pip install --no-cache-dir great-expectations==0.17.16
+COPY pyproject.toml ./
+# Generate a fresh poetry.lock file
+RUN poetry lock
+# Instalar las dependencias del proyecto con Poetry
+RUN poetry install --no-root --no-interaction --no-ansi
 
     
    
@@ -71,6 +60,3 @@ RUN chown -R airflow: ${AIRFLOW_HOME}
 
 USER airflow
 ENTRYPOINT ["/entrypoint.sh"]
-
-# Initialize the Airflow database
-RUN airflow db init
