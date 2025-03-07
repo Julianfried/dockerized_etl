@@ -1,4 +1,37 @@
-# TestFligoo Data Pipeline
+## ETL Pipeline Automation
+
+This project includes an automated triggering mechanism that starts the ETL pipeline when the Docker environment is healthy:
+
+1. When the containers start up, the system performs health checks on all components
+2. Once the webserver and scheduler are healthy, a special health check DAG runs automatically
+3. This health check DAG verifies:
+   - PostgreSQL database connection
+   - Table existence and data
+   - Airflow connections
+   - Filesystem access
+   - System resources
+4. After all checks pass, it automatically triggers the ETL pipeline
+
+This ensures that your data pipeline only runs when the entire environment is properly set up and healthy.
+
+### How the Automation Works
+
+The automatic triggering system consists of:
+
+1. **Health Check DAG**: Runs system checks and triggers the ETL pipeline
+2. **Startup Script**: Unpauses and triggers the health check DAG
+3. **Container Health Checks**: Ensures all components are ready
+4. **Modified Entrypoint**: Runs the startup process at the right time
+
+### Manually Triggering the Pipeline
+
+If you need to manually trigger the ETL pipeline:
+
+```bash
+docker-compose exec airflow-scheduler airflow dags trigger pandas_etl_pipeline
+```
+
+You can also trigger it through the Airflow UI.# TestFligoo Data Pipeline
 
 A complete data engineering solution featuring Apache Airflow, PostgreSQL, Pandas, and Great Expectations.
 
@@ -22,9 +55,9 @@ The solution automatically creates the required `testfligoo` database and `testd
 ## Project Structure
 
 ```
-testfligoo-pipeline/
+dockerized_etl/
 ├── dags/                   # Airflow DAG definitions
-│   └── testfligoo_dag.py   # Sample DAG for data processing
+│   └── etl.py              # Sample DAG for data processing
 ├── data/                   # Data directory for pipeline artifacts
 ├── init-scripts/           # Database initialization scripts
 │   └── 01-init-db.sql      # Creates testfligoo database and testdata table
@@ -46,7 +79,7 @@ testfligoo-pipeline/
 
 ```
 git clone <repository-url>
-cd testfligoo-pipeline
+cd dockerized_etl
 ```
 
 ### 2. Create Required Directories
@@ -64,7 +97,7 @@ docker-compose up -d
 This will:
 - Build the Docker image with all dependencies
 - Start PostgreSQL database
-- Initialize the `testfligoo` database and `testdata` table
+- Initialize the `testdata` table (for health check)  and  `testfligoo` database
 - Start Airflow webserver and scheduler
 - Initialize Airflow with an admin user
 
@@ -92,14 +125,12 @@ In the Airflow UI:
 
 The included sample DAG (`etl.py`) demonstrates a complete ETL (Extract, Transform, Load) process with data quality validation:
 
-1. **Extract**: Retrieves data from the `testdata` table in PostgreSQL
+1. **Extract**: Retrieves data from the aviation API
 2. **Transform**: Performs data transformations using Pandas
 3. **Validate**: Validates the transformed data using Great Expectations
-4. **Load**: Loads the transformed data back to PostgreSQL in a new table
+4. **Load**: Loads the transformed data back to PostgreSQL in a table
 
 ## The ETL DAG Structure
-
-I've rewritten your ETL DAG and broken it into separate modules following best practices:
 
 1. **extract.py**: Handles data extraction from PostgreSQL
 2. **transform.py**: Processes the data with pandas operations
@@ -121,17 +152,6 @@ Password: airflow
 
 ## Customizing the Pipeline
 
-### Modifying Database Schema
-
-To change the database schema or add additional tables:
-
-1. Modify the `init-scripts/01-init-db.sql` file
-2. Restart the containers with:
-   ```
-   docker-compose down -v
-   docker-compose up -d
-   ```
-
 ### Adding Dependencies
 
 To add new Python dependencies:
@@ -145,35 +165,6 @@ To add new Python dependencies:
    docker-compose build
    docker-compose up -d
    ```
-
-## Troubleshooting
-
-### Viewing Logs
-
-To view the logs from a specific service:
-
-```
-docker-compose logs -f airflow-webserver
-```
-
-### Resetting the Environment
-
-To completely reset the environment (including database volumes):
-
-```
-docker-compose down -v
-docker-compose up -d
-```
-
-### Database Connection Issues
-
-If Airflow has trouble connecting to the database, ensure that the PostgreSQL service is healthy:
-
-```
-docker-compose ps
-```
-
-
 ## Development
 
 ### Adding Custom Operators
@@ -188,9 +179,6 @@ This project includes several linting tools to maintain code quality:
    ```
    # Install dependencies (including dev dependencies for linting)
    poetry install
-
-   # Install pre-commit hooks
-   make pre-commit
    ```
 
 2. **Available linting commands**:
@@ -208,6 +196,10 @@ This project includes several linting tools to maintain code quality:
 
    # Run type checking
    poetry run mypy dags/ plugins/
+
+   #Or run all of them using pre-commit
+   # Run on a specific Python file
+   poetry run pre-commit run --files dags/etl.py
 
 3. **Individual linting tools**:
    - **Black**: Code formatter (maintains consistent style)
@@ -233,3 +225,5 @@ This project includes several linting tools to maintain code quality:
 - [Great Expectations Documentation](https://docs.greatexpectations.io/)
 - [Pandas Documentation](https://pandas.pydata.org/docs/)
 - [Poetry Documentation](https://python-poetry.org/docs/)
+
+
