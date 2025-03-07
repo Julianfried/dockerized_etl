@@ -25,7 +25,7 @@ def extract_data() -> pd.DataFrame:
     load_dotenv()
     
     # Get API key from environment variables
-    api_key = os.getenv('API_KEY')
+    api_key = os.getenv('AVIATION_STACK_API_KEY')
     if not api_key:
         error_msg = "AviationStack API key not found in environment variables."
         logger.error(error_msg)

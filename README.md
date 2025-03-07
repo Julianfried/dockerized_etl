@@ -88,9 +88,11 @@ cd dockerized_etl
 mkdir -p dags logs plugins data
 ```
 
-### 3. Start the Services
+### 3. Build and start the Services
 
 ```
+docker build .
+
 docker-compose up -d
 ```
 
@@ -143,6 +145,8 @@ The included sample DAG (`etl.py`) demonstrates a complete ETL (Extract, Transfo
 The PostgreSQL database is exposed on port 5432. You can connect to it using:
 
 ```
+http://localhost:5050/
+
 Host: localhost
 Port: 5432
 Database: testfligoo
